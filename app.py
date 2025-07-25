@@ -215,15 +215,15 @@ def view_log():
 
         else:
             return render_template_string("""
-                <html><body style='background:#111;color:#fff;text-align:center;padding:50px;'>
-                <h2>Wrong PIN. Try again.</h2>
-                <form method="post">
-                    <input type="password" name="pin" placeholder="Enter PIN" style='padding:10px;font-size:16px;'/>
-                    <button type="submit" style='padding:10px 20px;'>Enter</button>
-                </form>
-                <br><a class='back' href='/'>← Back to Upload</a>
-                </body></html>
-            ")
+            <html><body style='background:#111;color:#fff;text-align:center;padding:50px;'>
+            <h2>Wrong PIN. Try again.</h2>
+            <form method="post">
+                <input type="password" name="pin" placeholder="Enter PIN" style='padding:10px;font-size:16px;'/>
+                <button type="submit" style='padding:10px 20px;'>Enter</button>
+            </form>
+            <br><a class='back' href='/'>← Back to Upload</a>
+            </body></html>
+        """)
 
     return render_template_string("""
         <html><body style='background:#111;color:#fff;text-align:center;padding:50px;'>
@@ -234,7 +234,8 @@ def view_log():
         </form>
         <br><a class='back' href='/'>← Back to Upload</a>
         </body></html>
-    ")
+    """)
+
 
 @app.route('/debug')
 def debug_data():
