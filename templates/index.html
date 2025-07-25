@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PROOFME.AI v1.8</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding: 2rem;
+      margin: 0;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .header-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-left: 0.5rem;
+    }
+
+    .dashboard-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+
+    .custom-file-upload {
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .upload-btn {
+      background: #007bff;
+      color: white;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    .cancel-btn {
+      display: none;
+      background: #a10000;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+
+    .preview {
+      margin-top: 1.5rem;
+    }
+
+    .preview img {
+      max-width: 90%;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+
+    .info-box {
+      background: #1a1a1a;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      border-radius: 12px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .info-box h3 {
+      color: #33aaff;
+    }
+
+    #loading {
+      display: none;
+      margin-top: 2rem;
+      font-size: 16px;
+      color: #aaa;
+    }
+
+    .loader {
+      border: 4px solid #333;
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+      margin-bottom: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-title">PROOFME.AI v1.8</div>
+    <a href="/log"><button class="dashboard-btn">Dashboard</button></a>
+  </div>
+
+  <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+    <label for="fileInput" id="uploadLabel" class="custom-file-upload">Tap to Upload</label>
+    <input id="fileInput" type="file" name="file" accept=".jpg, .jpeg, .png, .heic" required onchange="revealUI(event)">
+
+    <div id="previewContainer" class="preview" style="display:none;">
+      <img id="previewImage" src="#" alt="Uploaded image">
+    </div>
+
+    <div id="submitOptions" style="display:none;">
+      <button class="upload-btn" type="submit">Submit Photo</button><br>
+      <button type="button" class="cancel-btn" onclick="window.location.href='/'" id="cancelBtn">❌ Cancel Upload</button>
+    </div>
+
+    <div id="loading">
+      <div class="loader"></div>
+      Scanning image...
+    </div>
+  </form>
+
+  <div class="info-box">
+    <h3>Hi, I’m Proof 👋</h3>
+    <p>Drop any photo — I’ll look for clue's in it's digital footprint and tell you if it's a:</p>
+    <p>✅ <strong>Honest Photo</strong> — sent from real friends, family, or good strangers.</p>
+    <p>❌ <strong>Deceptive Photo</strong> — sent from scammers, imposters, or bad actors.</p>
+  </div>
+
+  <script>
+    function revealUI(event) {
+      document.getElementById('uploadLabel').style.display = 'none';
+      document.getElementById('submitOptions').style.display = 'block';
+      document.getElementById('cancelBtn').style.display = 'inline-block';
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const output = document.getElementById('previewImage');
+        output.src = reader.result;
+        document.getElementById('previewContainer').style.display = 'block';
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function showLoading() {
+      document.getElementById('submitOptions').style.display = 'none';
+      document.getElementById('loading').style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scan Log Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .log-entry {
+      background: #1f1f1f;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 5px #000;
+    }
+
+    .verdict {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 0.4rem;
+    }
+
+    .green { color: #00cc66; }
+    .yellow { color: #ffcc00; }
+    .red { color: #ff4c4c; }
+
+    .filename, .score, .time {
+      font-size: 0.95rem;
+      color: #aaa;
+      margin: 0.2rem 0;
+    }
+
+    .image-preview {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+    }
+
+    form {
+      display: inline-block;
+      margin-top: 0.5rem;
+    }
+
+    .btn {
+      background: #333;
+      color: white;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>📂 Scan Log Dashboard</h1>
+
+  {% for log in logs %}
+  <div class="log-entry">
+    <div class="verdict {{ log['color'] }}">
+      {{ log['emoji'] }} {{ log['intent'] }}
+    </div>
+    <div class="score">Score: {{ log['score'] }}%</div>
+    <div class="filename">File: {{ log['filename'] }}</div>
+    <div class="time">Scanned: {{ log['timestamp'] }}</div>
+    <img class="image-preview" src="/uploads/{{ log['filename'] }}" alt="Image preview">
+    <form method="POST" action="/delete/{{ log['filename'] }}">
+      <button class="btn">🗑 Delete</button>
+    </form>
+    <form method="POST" action="/flag/{{ log['filename'] }}">
+      <button class="btn">🚩 Flag as Edge Case</button>
+    </form>
+  </div>
+  {% endfor %}
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scan Result</title>
+  <style>
+    body {
+      background: #121212;
+      color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+
+    .result-box {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    .honest { color: #00ff87; font-weight: bold; }
+    .uncertain { color: #ffc107; font-weight: bold; }
+    .deceptive { color: #ff4d4d; font-weight: bold; }
+
+    img {
+      margin-top: 15px;
+      width: 100%;
+      max-width: 100%;
+      border-radius: 8px;
+      border: 2px solid #333;
+    }
+
+    a.button {
+      display: block;
+      margin-top: 20px;
+      padding: 14px;
+      width: 100%;
+      max-width: 400px;
+      background: #007bff;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    a.button:hover {
+      background: #0062cc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📸 Scan Result</h1>
+
+  <div class="result-box">
+    <p><strong>Score:</strong> {{ "%.2f"|format(score) }}%</p>
+    <p class="{{ label_class }}">
+      {% if label_class == 'honest' %}
+        ✅ Honest Intent
+      {% elif label_class == 'uncertain' %}
+        ⚠️ Uncertain Intent
+      {% else %}
+        ❌ Deceptive Intent
+      {% endif %}
+    </p>
+    <p>
+      {% if label_class == 'honest' %}
+        The person who sent this photo appears to have sent it with honest intent.
+      {% elif label_class == 'uncertain' %}
+        The person who sent you this photo raises questions — be cautious.
+      {% else %}
+        The person who sent you this photo may have sent it to mislead or manipulate.
+      {% endif %}
+    </p>
+    <img src="/uploads/{{ filename }}" alt="Scanned Image" />
+  </div>
+
+  <a class="button" href="/">Scan Another</a>
+
+</body>
+</html>

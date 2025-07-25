@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scan Result</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      padding: 2rem;
+      margin: 0;
+    }
+
+    .score-header {
+      font-size: 22px;
+      margin-bottom: 1rem;
+    }
+
+    .intent-tag {
+      font-size: 18px;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .honest { background: #0a7f20; color: white; }
+    .uncertain { background: #ffaa00; color: black; }
+    .deceptive { background: #a10000; color: white; }
+
+    .photo {
+      max-width: 90%;
+      border-radius: 12px;
+      margin: 1rem 0;
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+
+    .notes {
+      margin-bottom: 1rem;
+    }
+
+    .scale {
+      margin: 2rem auto 1rem;
+      max-width: 280px;
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 12px;
+    }
+
+    .scale h3 {
+      margin-bottom: 0.5rem;
+    }
+
+    .scale li {
+      list-style: none;
+      padding: 4px 0;
+      text-align: left;
+    }
+
+    .divider {
+      height: 1px;
+      background: #444;
+      margin: 2rem auto 1.5rem;
+      width: 60%;
+    }
+
+    .button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      margin: 0.5rem 0.25rem;
+      min-width: 140px;
+    }
+
+    .scan-btn {
+      background: #333;
+      color: white;
+      margin-top: 1.5rem;
+    }
+
+    .flag-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .flag-label {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 16px;
+    }
+
+    .flag-honest {
+      background: #007f00;
+      color: white;
+    }
+
+    .flag-deceptive {
+      background: #c10000;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <h2 class="score-header">📸 Scan Result: {{ result.score }}%</h2>
+
+  {% if result.intent == "Honest Photo" %}
+    <div class="intent-tag honest">✅ Honest Photo</div>
+  {% elif result.intent == "Uncertain Photo" %}
+    <div class="intent-tag uncertain">⚠️ Uncertain Photo</div>
+  {% else %}
+    <div class="intent-tag deceptive">❌ Deceptive Photo</div>
+  {% endif %}
+
+  <p class="notes"><strong>NOTES:</strong> {{ result.reason }}</p>
+
+  <img src="{{ url_for('uploaded_file', filename=result.filename) }}" class="photo" alt="Uploaded image">
+
+  <div class="scale">
+    <h3>PROBABILITY SCALE</h3>
+    <ul>
+      <li>✅ Honest Intent: 80–100%</li>
+      <li>⚠️ Uncertain Intent: 60–79%</li>
+      <li>❌ Deceptive Intent: 0–59%</li>
+    </ul>
+  </div>
+
+  <form action="/" method="get">
+    <button class="button scan-btn">Scan Another</button>
+  </form>
+
+  <div class="divider"></div>
+
+  <div class="flag-label">Did I make a mistake?</div>
+  <div class="flag-wrapper">
+    <form action="/flag/{{ result.filename }}/honest" method="post">
+      <button class="button flag-honest">✅ Honest Photo</button>
+    </form>
+
+    <form action="/flag/{{ result.filename }}/deceptive" method="post">
+      <button class="button flag-deceptive">❌ Deceptive Photo</button>
+    </form>
+  </div>
+
+</body>
+</html>

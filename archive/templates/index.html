@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartID V1.6 - Proof Terminal UI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f0f0f;
+      color: #e0e0e0;
+      padding: 2rem;
+    }
+    h1 {
+      color: #7CFC00;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .card {
+      background-color: #1e1e1e;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 10px rgba(124, 252, 0, 0.1);
+    }
+    .btn {
+      background-color: #7CFC00;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #0f0f0f;
+    }
+    .score-green { color: #7CFC00; }
+    .score-yellow { color: #FFD700; }
+    .score-red { color: #FF6347; }
+    label { display: block; margin: 1rem 0 0.5rem; }
+    .breakdown-list { margin-top: 1rem; }
+    .breakdown-item { margin-bottom: 0.25rem; }
+    .final-answer { margin-top: 2rem; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+
+  <h1>SmartID V1.6 – Proof Terminal UI</h1>
+
+  <form method="POST" enctype="multipart/form-data">
+    <label for="file">Upload a Photo</label>
+    <input type="file" name="file" id="file" required />
+    <button class="btn" type="submit">Verify</button>
+  </form>
+
+  {% if filename %}
+    <div class="card">
+      <strong>File Uploaded:</strong> {{ filename }}<br>
+      <img src="{{ filename }}" alt="Uploaded Image" style="max-width: 100%; margin-top: 10px;">
+    </div>
+  {% endif %}
+
+  {% if blended_score %}
+    <div class="card">
+      <h2>🔍 SmartID Report</h2>
+      <p><strong>AI Model Score:</strong> {{ ai_score }}%</p>
+      <p><strong>Blended Score:</strong> 
+        <span class="{% if verdict.startswith('✅') %}score-green{% elif verdict.startswith('⚠️') %}score-yellow{% else %}score-red{% endif %}">
+          {{ blended_score }}%
+        </span>
+      </p>
+      <p><strong>Verdict:</strong> {{ verdict }}</p>
+    </div>
+
+    <div class="card">
+      <h2>🧠 Subcomponent Breakdown</h2>
+      <div class="breakdown-list">
+        {% for label, msg in breakdown.items() %}
+          <div class="breakdown-item"><strong>{{ label }}:</strong> {{ msg }}</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card final-answer">
+      <strong>Final Answer:</strong><br>
+      Was this photo taken by a real person—at the moment it says it was—with no tricks involved?<br><br>
+      SmartID Score: 
+      <span class="{% if verdict.startswith('✅') %}score-green{% elif verdict.startswith('⚠️') %}score-yellow{% else %}score-red{% endif %}">
+        {{ blended_score }}%
+      </span> → <strong>{{ verdict }}</strong>
+    </div>
+  {% endif %}
+
+</body>
+</html>

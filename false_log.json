@@ -1,0 +1,57 @@
+[
+  {
+    "filename": "IMG_9682.jpeg",
+    "user_flag": "deceptive",
+    "timestamp": "2025-07-24T12:07:41.476947",
+    "original_result": {
+      "score": 62,
+      "intent": "Uncertain Photo",
+      "emoji": "\u26a0\ufe0f",
+      "timestamp": "2025-07-24T12:04:35.786345"
+    }
+  },
+  {
+    "filename": "IMG_8190.jpeg",
+    "user_flag": "honest",
+    "timestamp": "2025-07-24T12:28:23.511963",
+    "original_result": {
+      "score": 60,
+      "intent": "Uncertain Photo",
+      "emoji": "\u26a0\ufe0f",
+      "timestamp": "2025-07-24T12:28:12.519895"
+    }
+  },
+  {
+    "filename": "IMG_9682.jpeg",
+    "user_flag": "deceptive",
+    "timestamp": "2025-07-24T12:33:21.888154",
+    "original_result": {
+      "score": 62,
+      "intent": "Uncertain Photo",
+      "emoji": "\u26a0\ufe0f",
+      "timestamp": "2025-07-24T12:04:35.786345"
+    }
+  },
+  {
+    "filename": "IMG_9671.jpeg",
+    "user_flag": "honest",
+    "timestamp": "2025-07-24T12:43:34.510952",
+    "original_result": {
+      "score": 66,
+      "intent": "Uncertain Photo",
+      "emoji": "\u26a0\ufe0f",
+      "timestamp": "2025-07-24T12:43:26.415614"
+    }
+  },
+  {
+    "filename": "IMG_9681.jpeg",
+    "user_flag": "deceptive",
+    "timestamp": "2025-07-24T17:31:47.540480",
+    "original_result": {
+      "score": 84,
+      "intent": "Honest Photo",
+      "emoji": "\u2705",
+      "timestamp": "2025-07-24T17:25:12.603270"
+    }
+  }
+]

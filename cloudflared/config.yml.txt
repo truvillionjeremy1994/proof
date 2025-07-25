@@ -1,0 +1,7 @@
+tunnel: 4364eea8-c209-4224-88c6-66f184c950d7
+credentials-file: C:\Users\Truvi\.cloudflared\4364eea8-c209-4224-88c6-66f184c950d7.json
+
+ingress:
+  - hostname: smartidapp.com
+    service: http://localhost:5000
+  - service: http_status:404
