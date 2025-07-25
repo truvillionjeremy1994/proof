@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, render_template_string
 from werkzeug.utils import secure_filename
 import os
 import datetime
@@ -152,14 +152,35 @@ def result():
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
-@app.route('/log')
+@app.route('/log', methods=['GET', 'POST'])
 def view_log():
-    try:
-        with open(SCAN_LOG, "r") as f:
-            logs = json.load(f)
-    except:
-        logs = []
-    return render_template("log_dashboard.html", logs=logs[::-1])
+    DASHBOARD_PIN = "121314"
+
+    if request.method == "POST":
+        entered_pin = request.form.get("pin")
+        if entered_pin == DASHBOARD_PIN:
+            try:
+                with open(SCAN_LOG, "r") as f:
+                    logs = json.load(f)
+            except:
+                logs = []
+            return render_template("log_dashboard.html", logs=logs[::-1])
+        else:
+            return render_template_string("""
+                <h2>Wrong PIN. Try again.</h2>
+                <form method="post">
+                    <input type="password" name="pin" placeholder="Enter PIN"/>
+                    <button type="submit">Enter</button>
+                </form>
+            """)
+
+    return render_template_string("""
+        <h2>Enter Dashboard PIN</h2>
+        <form method="post">
+            <input type="password" name="pin" placeholder="Enter PIN"/>
+            <button type="submit">Enter</button>
+        </form>
+    """)
 
 @app.route('/flag/<filename>/<flag_type>', methods=['POST'])
 def flag_file(filename, flag_type):
