@@ -145,22 +145,12 @@
   <div class="flag-label">Confident this was a mistake?<br>Tell me so I can learn for next time!</div>
 
   <div class="flag-buttons">
-    {% if result.intent == "Uncertain Photo" %}
-      <form action="/flag/{{ result.filename }}/honest" method="post">
-        <button class="button flag-honest">✅ Honest Photo</button>
-      </form>
-      <form action="/flag/{{ result.filename }}/deceptive" method="post">
-        <button class="button flag-deceptive">❌ Deceptive Photo</button>
-      </form>
-    {% elif result.intent == "Deceptive Photo" %}
-      <form action="/flag/{{ result.filename }}/honest" method="post">
-        <button class="button flag-honest">✅ Honest Photo</button>
-      </form>
-    {% elif result.intent == "Honest Photo" %}
-      <form action="/flag/{{ result.filename }}/deceptive" method="post">
-        <button class="button flag-deceptive">❌ Deceptive Photo</button>
-      </form>
-    {% endif %}
+    <form action="/flag/{{ result.filename }}/honest" method="post">
+      <button class="button flag-honest">✅ Honest Photo</button>
+    </form>
+    <form action="/flag/{{ result.filename }}/deceptive" method="post">
+      <button class="button flag-deceptive">❌ Deceptive Photo</button>
+    </form>
   </div>
 
 </body>

@@ -165,15 +165,41 @@ def view_log():
             except:
                 logs = []
 
-            table_html = """<h2>Scan Results</h2><table border='1' cellpadding='6'><tr>
-                <th>Filename</th><th>Intent</th><th>Score</th><th>A</th><th>D</th><th>B</th><th>Upload Count</th>
-                <th>IP Variation</th><th>Rapid Fire</th><th>IP</th><th>Timestamp</th></tr>"""
+            html = """
+            <html>
+            <head>
+                <title>Proof Log Dashboard</title>
+                <style>
+                    body { background-color: #111; color: #fff; font-family: Arial, sans-serif; text-align: center; }
+                    .scan { border: 1px solid #333; border-radius: 8px; background: #1c1c1c; padding: 20px; margin: 20px auto; width: 90%; max-width: 480px; text-align: left; }
+                    img { width: 100%; border-radius: 6px; margin-top: 10px; }
+                    button { margin: 10px 5px; padding: 10px 14px; background-color: #333; color: #fff; border: none; border-radius: 6px; font-weight: bold; }
+                    .honest { background-color: #226622; }
+                    .deceptive { background-color: #991111; }
+                </style>
+            </head>
+            <body>
+                <h2>📊 Proof Log Dashboard</h2>
+            """
             for log in logs[::-1]:
-                table_html += f"<tr><td>{log['filename']}</td><td>{log['intent']} {log['emoji']}</td><td>{log['score']}</td>"
-                table_html += f"<td>{log['A']}</td><td>{log['D']}</td><td>{log['B']}</td><td>{log['upload_count']}</td>"
-                table_html += f"<td>{log['ip_variation']}</td><td>{log['rapid_fire']}</td><td>{log['ip']}</td><td>{log['timestamp']}</td></tr>"
-            table_html += "</table>"
-            return render_template_string(table_html)
+                html += f"""
+                <div class='scan'>
+                    <strong>{log['emoji']} {log['intent']}</strong><br>
+                    <b>Score:</b> {log['score']}<br>
+                    <b>File:</b> {log['filename']}<br>
+                    <b>Scanned:</b> {log['timestamp']}<br>
+                    <img src='/uploads/{log['filename']}'><br>
+                    <form method='POST' action='/flag/{log['filename']}/honest'>
+                        <button class='honest' type='submit'>✅ Flag as Honest Photo</button>
+                    </form>
+                    <form method='POST' action='/flag/{log['filename']}/deceptive'>
+                        <button class='deceptive' type='submit'>❌ Flag as Deceptive Photo</button>
+                    </form>
+                </div>
+                """
+            html += "</body></html>"
+            return html
+
         else:
             return render_template_string("""
                 <h2>Wrong PIN. Try again.</h2>
@@ -190,3 +216,67 @@ def view_log():
             <button type="submit">Enter</button>
         </form>
     """)
+
+@app.route('/debug')
+def debug_data():
+    try:
+        with open(SCAN_LOG, "r") as f:
+            data = json.load(f)
+        return jsonify(data)
+    except:
+        return jsonify({"error": "Failed to load scan_results.json"})
+
+@app.route('/flag/<filename>/<flag_type>', methods=['POST'])
+def flag_file(filename, flag_type):
+    src = os.path.join(UPLOAD_FOLDER, filename)
+    dst_folder = FLAG_HONEST if flag_type == "honest" else FLAG_DECEPTIVE
+    dst = os.path.join(dst_folder, filename)
+    os.makedirs(dst_folder, exist_ok=True)
+
+    if os.path.exists(src):
+        shutil.copy2(src, dst)
+
+        record = None
+        if os.path.exists(SCAN_LOG):
+            with open(SCAN_LOG, 'r') as f:
+                try:
+                    scan_data = json.load(f)
+                    record = next((r for r in scan_data if r['filename'] == filename), None)
+                except:
+                    scan_data = []
+
+        flag_entry = {
+            "filename": filename,
+            "user_flag": flag_type,
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+
+        if record:
+            flag_entry["original_result"] = {
+                "score": record.get("score"),
+                "intent": record.get("intent"),
+                "emoji": record.get("emoji"),
+                "timestamp": record.get("timestamp")
+            }
+
+        log_data = []
+        if os.path.exists(FALSE_LOG):
+            try:
+                with open(FALSE_LOG, 'r') as f:
+                    log_data = json.load(f)
+            except:
+                log_data = []
+
+        log_data.append(flag_entry)
+        with open(FALSE_LOG, 'w') as f:
+            json.dump(log_data, f, indent=2)
+
+    return redirect(url_for('index'))
+
+# ---------------------------
+# Start Server
+# ---------------------------
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
