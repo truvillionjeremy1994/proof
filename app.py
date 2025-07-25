@@ -173,9 +173,12 @@ def view_log():
                     body { background-color: #111; color: #fff; font-family: Arial, sans-serif; text-align: center; }
                     .scan { border: 1px solid #333; border-radius: 8px; background: #1c1c1c; padding: 20px; margin: 20px auto; width: 90%; max-width: 480px; text-align: left; }
                     img { width: 100%; border-radius: 6px; margin-top: 10px; }
-                    button { margin: 10px 5px; padding: 10px 14px; background-color: #333; color: #fff; border: none; border-radius: 6px; font-weight: bold; }
-                    .honest { background-color: #226622; }
-                    .deceptive { background-color: #991111; }
+                    .btn-container { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+                    button { padding: 10px 14px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
+                    .honest { background-color: #226622; color: white; }
+                    .deceptive { background-color: #991111; color: white; }
+                    .delete { background-color: #555; color: white; }
+                    a.back { color: #0af; text-decoration: none; display: inline-block; margin-top: 20px; }
                 </style>
             </head>
             <body>
@@ -194,33 +197,44 @@ def view_log():
                     <b>Rapid Fire:</b> {log['rapid_fire']}<br>
                     <b>IP Change:</b> {log['ip_variation']}<br>
                     <img src='/uploads/{log['filename']}'><br>
-                    <form method='POST' action='/flag/{log['filename']}/honest'>
-                        <button class='honest' type='submit'>✅ Flag as Honest Photo</button>
-                    </form>
-                    <form method='POST' action='/flag/{log['filename']}/deceptive'>
-                        <button class='deceptive' type='submit'>❌ Flag as Deceptive Photo</button>
-                    </form>
+                    <div class='btn-container'>
+                        <form method='POST' action='/flag/{log['filename']}/honest'>
+                            <button class='honest' type='submit'>✅ Honest</button>
+                        </form>
+                        <form method='POST' action='/flag/{log['filename']}/deceptive'>
+                            <button class='deceptive' type='submit'>❌ Deceptive</button>
+                        </form>
+                        <form method='POST' action='/flag/{log['filename']}/delete'>
+                            <button class='delete' type='submit'>🗑️ Delete</button>
+                        </form>
+                    </div>
                 </div>
                 """
-            html += "</body></html>"
+            html += "<a class='back' href='/'>← Back to Upload</a></body></html>"
             return html
 
         else:
             return render_template_string("""
+                <html><body style='background:#111;color:#fff;text-align:center;padding:50px;'>
                 <h2>Wrong PIN. Try again.</h2>
                 <form method="post">
-                    <input type="password" name="pin" placeholder="Enter PIN"/>
-                    <button type="submit">Enter</button>
+                    <input type="password" name="pin" placeholder="Enter PIN" style='padding:10px;font-size:16px;'/>
+                    <button type="submit" style='padding:10px 20px;'>Enter</button>
                 </form>
-            """)
+                <br><a class='back' href='/'>← Back to Upload</a>
+                </body></html>
+            ")
 
     return render_template_string("""
+        <html><body style='background:#111;color:#fff;text-align:center;padding:50px;'>
         <h2>Enter Dashboard PIN</h2>
         <form method="post">
-            <input type="password" name="pin" placeholder="Enter PIN"/>
-            <button type="submit">Enter</button>
+            <input type="password" name="pin" placeholder="Enter PIN" style='padding:10px;font-size:16px;'/>
+            <button type="submit" style='padding:10px 20px;'>Enter</button>
         </form>
-    """)
+        <br><a class='back' href='/'>← Back to Upload</a>
+        </body></html>
+    ")
 
 @app.route('/debug')
 def debug_data():
@@ -234,6 +248,12 @@ def debug_data():
 @app.route('/flag/<filename>/<flag_type>', methods=['POST'])
 def flag_file(filename, flag_type):
     src = os.path.join(UPLOAD_FOLDER, filename)
+
+    if flag_type == "delete":
+        if os.path.exists(src):
+            os.remove(src)
+        return redirect(url_for('index'))
+
     dst_folder = FLAG_HONEST if flag_type == "honest" else FLAG_DECEPTIVE
     dst = os.path.join(dst_folder, filename)
     os.makedirs(dst_folder, exist_ok=True)
@@ -285,4 +305,3 @@ def flag_file(filename, flag_type):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-          
