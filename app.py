@@ -188,6 +188,11 @@ def view_log():
                     <b>Score:</b> {log['score']}<br>
                     <b>File:</b> {log['filename']}<br>
                     <b>Scanned:</b> {log['timestamp']}<br>
+                    <b>Depth:</b> {log['A']}<br>
+                    <b>Deception:</b> {log['D']}<br>
+                    <b>Behavior:</b> {log['B']}<br>
+                    <b>Rapid Fire:</b> {log['rapid_fire']}<br>
+                    <b>IP Change:</b> {log['ip_variation']}<br>
                     <img src='/uploads/{log['filename']}'><br>
                     <form method='POST' action='/flag/{log['filename']}/honest'>
                         <button class='honest' type='submit'>✅ Flag as Honest Photo</button>
@@ -280,3 +285,4 @@ def flag_file(filename, flag_type):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+          
