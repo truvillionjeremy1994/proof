@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, render_template_string
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, render_template_string, jsonify
 from werkzeug.utils import secure_filename
 import os
 import datetime
@@ -232,6 +232,14 @@ def flag_file(filename, flag_type):
 # ---------------------------
 # Start Server
 # ---------------------------
+@app.route('/debug')
+def debug_data():
+    try:
+        with open(SCAN_LOG, "r") as f:
+            data = json.load(f)
+        return jsonify(data)
+    except:
+        return jsonify({"error": "Failed to load scan_results.json"})
 
 if __name__ == '__main__':
     import os
