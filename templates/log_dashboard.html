@@ -1,94 +1,112 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scan Log Dashboard</title>
+  <title>📂 Scan Log Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      background-color: #111;
-      color: #eee;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 1rem;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-      color: #fff;
-    }
-
-    .log-entry {
-      background: #1f1f1f;
-      border-radius: 10px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 0 5px #000;
-    }
-
-    .verdict {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 0.4rem;
-    }
-
-    .green { color: #00cc66; }
-    .yellow { color: #ffcc00; }
-    .red { color: #ff4c4c; }
-
-    .filename, .score, .time {
-      font-size: 0.95rem;
-      color: #aaa;
-      margin: 0.2rem 0;
-    }
-
-    .image-preview {
-      max-width: 100%;
-      border-radius: 8px;
-      margin-top: 0.5rem;
-    }
-
-    form {
-      display: inline-block;
-      margin-top: 0.5rem;
-    }
-
-    .btn {
-      background: #333;
-      color: white;
-      border: none;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    .btn:hover {
-      background: #555;
-    }
+    body { background-color: #111; color: #eee; font-family: Arial, sans-serif; margin: 0; padding: 1rem; }
+    h1 { text-align: center; color: #fff; }
+    .action-buttons, .pagination { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+    input, textarea { background: #222; color: #eee; border: 1px solid #333; padding: 0.5rem; border-radius: 6px; width: 100%; max-width: 500px; margin-top: 4px; }
+    .btn { background: #333; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.9rem; cursor: pointer; }
+    .log-entry { background: #1f1f1f; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 0 5px #000; }
+    .image-preview { max-width: 100%; max-height: 300px; display: block; margin: 10px auto; border-radius: 8px; }
+    .flag-form label { display: block; margin-top: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
   <h1>📂 Scan Log Dashboard</h1>
 
-  {% for log in logs %}
-  <div class="log-entry">
-    <div class="verdict {{ log['color'] }}">
-      {{ log['emoji'] }} {{ log['intent'] }}
-    </div>
-    <div class="score">Score: {{ log['score'] }}%</div>
-    <div class="filename">File: {{ log['filename'] }}</div>
-    <div class="time">Scanned: {{ log['timestamp'] }}</div>
-    <img class="image-preview" src="/uploads/{{ log['filename'] }}" alt="Image preview">
-    <form method="POST" action="/delete/{{ log['filename'] }}">
-      <button class="btn">🗑 Delete</button>
-    </form>
-    <form method="POST" action="/flag/{{ log['filename'] }}">
-      <button class="btn">🚩 Flag as Edge Case</button>
-    </form>
+  <div class="action-buttons">
+    <button class="btn" onclick="saveAndExportMetadata()">📦 Save + Export Selected Metadata</button>
+    <button class="btn" onclick="deleteSelected()">🗑 Delete Selected</button>
+    <button class="btn" onclick="window.location.href='/'">← Back to Upload</button>
   </div>
-  {% endfor %}
+
+  <div id="log-container">
+    {% for log in logs %}
+    {% set result = 'Honest' if log['score'] >= 80 else ('Uncertain' if log['score'] >= 60 else 'Deceptive') %}
+    {% set intent = 'Honest Photo' if log['score'] >= 80 else ('Honest but Deceptive Photo' if log['score'] >= 60 else 'Deceptive Photo') %}
+    {% set context = 'This image appears authentic with no signs of manipulation.' if log['score'] >= 80 else ('Model showed uncertainty — review advised.' if log['score'] >= 60 else 'Image may have been reused, manipulated, or artificially enhanced.') %}
+    {% set notes = 'No external matches found online.' if log['score'] >= 80 else ('Soft filters or slight reuse indicators.' if log['score'] >= 60 else 'Reverse image shows multiple reposts or flagged usage.') %}
+
+    <div class="log-entry" data-filename="{{ log['filename'] }}">
+      <label><input type="checkbox" class="checkbox" value="{{ log['filename'] }}"> Select</label>
+      <div><strong>Filename:</strong> {{ log['filename'] }}</div>
+      <div>Score: {{ log['score'] }}%</div>
+      <div>Scanned: {{ log['timestamp'] }}</div>
+      <img class="image-preview" src="/uploads/{{ log['filename'] }}" alt="Image preview">
+
+      <div class="flag-form">
+        <label>Intent:</label>
+        <input type="text" class="meta-intent" value="{{ intent }}">
+
+        <label>Source:</label>
+        <input type="text" class="meta-source" value="Shared through social platform or direct message">
+
+        <label>Context:</label>
+        <textarea class="meta-context">{{ context }}</textarea>
+
+        <label>Notes:</label>
+        <textarea class="meta-notes">{{ notes }}</textarea>
+
+        <label>🔍 Google Reverse Image Lookup URL:</label>
+        <input type="text" class="meta-reverse" value="https://www.google.com/searchbyimage?image_url={{ request.url_root }}uploads/{{ log['filename'] }}">
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    function getEntryData(entry) {
+      return {
+        filename: entry.dataset.filename,
+        intent: entry.querySelector('.meta-intent').value,
+        source: entry.querySelector('.meta-source').value,
+        context: entry.querySelector('.meta-context').value,
+        notes: entry.querySelector('.meta-notes').value,
+        reverse_url: entry.querySelector('.meta-reverse').value
+      };
+    }
+
+    function saveAndExportMetadata() {
+      const selected = document.querySelectorAll('input[type=checkbox]:checked');
+      if (selected.length === 0) return alert('Select at least one photo');
+
+      const payload = [];
+      selected.forEach(cb => {
+        const entry = cb.closest('.log-entry');
+        if (entry) payload.push(getEntryData(entry));
+      });
+
+      fetch('/save_metadata_batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(res => {
+        if (res.ok) {
+          const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'proof_metadata.json';
+          a.click();
+          URL.revokeObjectURL(url);
+          alert('Saved and exported successfully.');
+        } else {
+          alert('Failed to save metadata.');
+        }
+      });
+    }
+
+    function deleteSelected() {
+      const selected = document.querySelectorAll('input[type=checkbox]:checked');
+      if (selected.length === 0) return alert('Nothing selected');
+      selected.forEach(cb => {
+        fetch(`/flag/${cb.value}/delete`, { method: 'POST' }).then(() => location.reload());
+      });
+    }
+  </script>
 </body>
 </html>
