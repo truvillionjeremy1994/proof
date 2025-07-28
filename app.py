@@ -1,3 +1,61 @@
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
+import os, random, base64
+from datetime import datetime
+from werkzeug.utils import secure_filename
+from logger import log_signal_event, log_click_event, compute_texture_score, compute_lighting_score, PREVIOUS_UPLOADS
+from model_loader import proof_model, predict_confidence_score
+
+app = Flask(__name__)
+app.secret_key = "proof_secret_key"
+
+UPLOAD_FOLDER = 'uploads'
+SIGNAL_LOG_FILE = 'signal_log.json'
+CLICK_LOG_FILE = 'click_log.json'
+COUNTER_FILE = 'upload_count.txt'
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def encode_image_base64(path):
+    with open(path, 'rb') as f:
+        return base64.b64encode(f.read()).decode('utf-8')
+
+def increment_upload_count():
+    if not os.path.exists(COUNTER_FILE):
+        with open(COUNTER_FILE, 'w') as f:
+            f.write("0")
+    with open(COUNTER_FILE, 'r+') as f:
+        count = int(f.read().strip())
+        count += 1
+        f.seek(0)
+        f.write(str(count))
+        f.truncate()
+    return count
+
+def get_upload_count():
+    if os.path.exists(COUNTER_FILE):
+        with open(COUNTER_FILE, 'r') as f:
+            return int(f.read().strip())
+    return 0
+
+def generate_session_id():
+    raw = f"{request.remote_addr}_{datetime.utcnow().isoformat()}"
+    return os.urandom(4).hex()
+
+@app.route('/')
+def index():
+    upload_count = get_upload_count()
+    return render_template('index.html', upload_count=upload_count)
+
+@app.route('/cleanup', methods=['GET', 'POST'])
+def cleanup():
+    filename = session.pop('filename', None)
+    if filename:
+        try:
+            os.remove(os.path.join(UPLOAD_FOLDER, filename))
+        except Exception:
+            pass
+    return redirect(url_for('index'))
+
 @app.route('/upload', methods=['POST', 'GET'])
 def upload():
     filename = session.get('filename')
@@ -17,7 +75,6 @@ def upload():
         increment_upload_count()
         session_id = generate_session_id()
 
-        from logger import compute_texture_score, compute_lighting_score
         tex = compute_texture_score(filepath)
         light = compute_lighting_score(filepath)
         hour = datetime.utcnow().hour
@@ -59,7 +116,6 @@ def upload():
 
         filepath = os.path.join(UPLOAD_FOLDER, session.get("filename"))
 
-        from logger import compute_texture_score, compute_lighting_score
         tex = compute_texture_score(filepath)
         light = compute_lighting_score(filepath)
         hour = datetime.utcnow().hour
@@ -112,3 +168,15 @@ def upload():
         boost_delta=boost_delta,
         base64_image=base64_image
     )
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
+@app.route('/count')
+def count_route():
+    return f"Total uploads: {get_upload_count()}"
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
