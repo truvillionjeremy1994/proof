@@ -1,0 +1,321 @@
+[
+  {
+    "event": "initial_upload",
+    "filename": "proof_icon_512x512.jpg",
+    "timestamp": "2025-07-28T03:42:52.868170",
+    "session_id": "a7657f88",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 3,
+    "cluster_id": "e9d9e461",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 512,
+      "height": 512,
+      "aspect_ratio": 1.0,
+      "texture_score": 478.187824249253,
+      "lighting_score": 0.21583777034983914,
+      "image_hash": "c3b83c46c3b13cce",
+      "file_size_kb": 23
+    },
+    "exif": {
+      "camera_make": "",
+      "camera_model": "",
+      "timestamp_exif": ""
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.0
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "spoof_fc_phone_angle_001a.jpeg",
+    "timestamp": "2025-07-28T03:43:09.301230",
+    "session_id": "a976b6d1",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 3,
+    "cluster_id": "eb8cda5b",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 4032,
+      "height": 3024,
+      "aspect_ratio": 1.333,
+      "texture_score": 49.090106928032235,
+      "lighting_score": 0.4030143178670645,
+      "image_hash": "c66fd91d90c065c7",
+      "file_size_kb": 1791
+    },
+    "exif": {
+      "camera_make": "Apple",
+      "camera_model": "iPhone 15 Pro",
+      "timestamp_exif": "2025:07:19 23:44:48"
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.538
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "20250726_130459_IMG_9682.jpeg",
+    "timestamp": "2025-07-28T03:43:47.687121",
+    "session_id": "f4237e09",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 3,
+    "cluster_id": "9162db26",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 701,
+      "height": 973,
+      "aspect_ratio": 0.72,
+      "texture_score": 2508.7187179883267,
+      "lighting_score": 0.9531395107124839,
+      "image_hash": "8e337a2cc7859197",
+      "file_size_kb": 87
+    },
+    "exif": {
+      "camera_make": "",
+      "camera_model": "",
+      "timestamp_exif": ""
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.292
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "IMG_6814.jpeg",
+    "timestamp": "2025-07-28T03:47:59.750103",
+    "session_id": "28b492a9",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 3,
+    "cluster_id": "80d6aea8",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 198,
+      "height": 452,
+      "aspect_ratio": 0.438,
+      "texture_score": 2360.650191798124,
+      "lighting_score": 0.5270562645367435,
+      "image_hash": "de36f0c28b8b6271",
+      "file_size_kb": 43
+    },
+    "exif": {
+      "camera_make": "",
+      "camera_model": "",
+      "timestamp_exif": ""
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.397
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "IMG_8440.jpeg",
+    "timestamp": "2025-07-28T03:48:09.273670",
+    "session_id": "d0f6d247",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 3,
+    "cluster_id": "9d957f79",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 4032,
+      "height": 3024,
+      "aspect_ratio": 1.333,
+      "texture_score": 122.96252604553277,
+      "lighting_score": 0.5112168932001814,
+      "image_hash": "9778309f95997524",
+      "file_size_kb": 2828
+    },
+    "exif": {
+      "camera_make": "Apple",
+      "camera_model": "iPhone 15 Pro",
+      "timestamp_exif": "2025:06:20 20:10:39"
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.483
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "IMG_8044.jpeg",
+    "timestamp": "2025-07-28T03:49:09.700884",
+    "session_id": "c9f93fed",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 3,
+    "cluster_id": "815eda9b",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 5712,
+      "height": 4284,
+      "aspect_ratio": 1.333,
+      "texture_score": 15.538180211605846,
+      "lighting_score": 0.5652345104388032,
+      "image_hash": "b48532761db163ce",
+      "file_size_kb": 3231
+    },
+    "exif": {
+      "camera_make": "Apple",
+      "camera_model": "iPhone 15 Pro",
+      "timestamp_exif": "2025:05:21 17:15:29"
+    },
+    "behavioral_signals": {
+      "reupload_count": 1,
+      "filename_similarity_avg": 0.571
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "IMG_9467.jpeg",
+    "timestamp": "2025-07-28T03:49:18.238011",
+    "session_id": "655e8827",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 3,
+    "cluster_id": "879247ae",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 489,
+      "height": 772,
+      "aspect_ratio": 0.633,
+      "texture_score": 251.61127175976807,
+      "lighting_score": 0.5222813821164055,
+      "image_hash": "f987869c5a287d49",
+      "file_size_kb": 80
+    },
+    "exif": {
+      "camera_make": "",
+      "camera_model": "",
+      "timestamp_exif": ""
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.566
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "IMG_9119.jpeg",
+    "timestamp": "2025-07-28T03:52:49.778409",
+    "session_id": "36ccf7a5",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 3,
+    "cluster_id": "2724f176",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 4284,
+      "height": 5712,
+      "aspect_ratio": 0.75,
+      "texture_score": 45.816162739584676,
+      "lighting_score": 0.5220364954581089,
+      "image_hash": "ecc0bb4f247e813a",
+      "file_size_kb": 3082
+    },
+    "exif": {
+      "camera_make": "Apple",
+      "camera_model": "iPhone 16 Pro Max",
+      "timestamp_exif": "2025:06:14 12:33:23"
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.589
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "proof_icon_1024.jpg",
+    "timestamp": "2025-07-28T03:59:45.980058",
+    "session_id": "dc9524df",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 3,
+    "cluster_id": "6b742620",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 878,
+      "height": 392,
+      "aspect_ratio": 2.24,
+      "texture_score": 809.5174445307963,
+      "lighting_score": 0.2890391805925104,
+      "image_hash": "c3b93cce94956338",
+      "file_size_kb": 40
+    },
+    "exif": {
+      "camera_make": "",
+      "camera_model": "",
+      "timestamp_exif": ""
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.0
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "IMG_1248.jpeg",
+    "timestamp": "2025-07-28T04:00:05.957187",
+    "session_id": "b12bd015",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 4,
+    "cluster_id": "71fa23ec",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 702,
+      "height": 752,
+      "aspect_ratio": 0.934,
+      "texture_score": 333.87547022064297,
+      "lighting_score": 0.4443882399295415,
+      "image_hash": "e130b877be423789",
+      "file_size_kb": 512
+    },
+    "exif": {
+      "camera_make": "",
+      "camera_model": "",
+      "timestamp_exif": ""
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.5
+    }
+  },
+  {
+    "event": "initial_upload",
+    "filename": "IMG_0365.jpeg",
+    "timestamp": "2025-07-28T04:00:25.190623",
+    "session_id": "eb3a8a73",
+    "ip_hash": "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0",
+    "user_agent_hash": "9559d1e35f81d5056027cc076b5180ea0a8606127d56fdf2f861c9185cc17cb7",
+    "upload_hour": 4,
+    "cluster_id": "cbe0d339",
+    "behavior_outcome": "unknown",
+    "image": {
+      "width": 853,
+      "height": 1280,
+      "aspect_ratio": 0.666,
+      "texture_score": 395.49643628142775,
+      "lighting_score": 0.8598096323816748,
+      "image_hash": "98639b3666a4e565",
+      "file_size_kb": 120
+    },
+    "exif": {
+      "camera_make": "",
+      "camera_model": "",
+      "timestamp_exif": ""
+    },
+    "behavioral_signals": {
+      "reupload_count": 0,
+      "filename_similarity_avg": 0.534
+    }
+  }
+]

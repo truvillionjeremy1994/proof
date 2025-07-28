@@ -1,192 +1,166 @@
-# Replacing with clean and accurate app.py including dashboard, IP, batch download, and labeling
-
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session, render_template_string, jsonify, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
+import os, random
+from datetime import datetime
 from werkzeug.utils import secure_filename
-import os, datetime, json, shutil, random, io, zipfile
+from logger import log_signal_event, log_click_event, PREVIOUS_UPLOADS
 
 app = Flask(__name__)
-app.secret_key = 'super_secret_key_123'
+app.secret_key = "proof_secret_key"
 
 UPLOAD_FOLDER = 'uploads'
-SCAN_LOG = 'scan_results.json'
-FALSE_LOG = 'false_log.json'
-FLAG_HONEST = os.path.join('false_results', 'honest_but_flagged')
-FLAG_DECEPTIVE = os.path.join('false_results', 'deceptive_but_passed')
+SIGNAL_LOG_FILE = 'signal_log.json'
+CLICK_LOG_FILE = 'click_log.json'
+COUNTER_FILE = 'upload_count.txt'
 
-for folder in [UPLOAD_FOLDER, FLAG_HONEST, FLAG_DECEPTIVE]:
-    os.makedirs(folder, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ---------------------------
-# Scoring Logic
-# ---------------------------
+# === Upload Counter ===
+def increment_upload_count():
+    if not os.path.exists(COUNTER_FILE):
+        with open(COUNTER_FILE, 'w') as f:
+            f.write("0")
+    with open(COUNTER_FILE, 'r+') as f:
+        count = int(f.read().strip())
+        count += 1
+        f.seek(0)
+        f.write(str(count))
+        f.truncate()
+    return count
 
-def calculate_behavior_score(upload_count, ip_variation=False, rapid_fire=False):
-    if upload_count == 1:
-        return 0.0
-    elif upload_count == 2:
-        return 0.2
-    elif upload_count == 3:
-        return 0.4
-    elif upload_count == 4:
-        return 0.8
-    else:
-        base = 1.2
-        if ip_variation:
-            base += 0.3
-        if rapid_fire:
-            base += 0.3
-        return min(base, 2.0)
+def get_upload_count():
+    if os.path.exists(COUNTER_FILE):
+        with open(COUNTER_FILE, 'r') as f:
+            return int(f.read().strip())
+    return 0
 
-def calculate_intent_score(A, D, B):
-    I = (A * 1.25) - (D * 1.5 + B * 1.0)
-    return max(0, min(100, round(I)))
+def generate_session_id():
+    raw = f"{request.remote_addr}_{datetime.utcnow().isoformat()}"
+    return os.urandom(4).hex()
 
-def analyze_image(filepath, user_ip, current_time):
-    A = round(random.uniform(70, 100), 2)
-    D = round(random.uniform(0, 30), 2)
-
-    logs = []
-    if os.path.exists(SCAN_LOG):
-        try:
-            with open(SCAN_LOG, 'r') as f:
-                logs = json.load(f)
-        except:
-            logs = []
-
-    filename = os.path.basename(filepath)
-    same_file_logs = [r for r in logs if r.get('filename') == filename]
-    same_ip_logs = [r for r in logs if r.get('ip') == user_ip]
-
-    upload_count = len(same_file_logs) + 1
-    ip_variation = len({r.get('ip') for r in same_file_logs}) > 1
-
-    rapid_fire = False
-    for log in same_ip_logs:
-        try:
-            past_time = datetime.datetime.fromisoformat(log.get('timestamp'))
-            if (current_time - past_time).total_seconds() <= 300:
-                rapid_fire = True
-                break
-        except:
-            continue
-
-    B = calculate_behavior_score(upload_count, ip_variation, rapid_fire)
-    I = calculate_intent_score(A, D, B)
-
-    if I >= 80:
-        intent, emoji = 'Honest Photo', '✅'
-        reason = "This photo's digital footprint appears genuine — the sender shows no signs of deception."
-    elif I >= 60:
-        intent, emoji = 'Uncertain Photo', '⚠️'
-        reason = "This photo's digital footprint raises some uncertainty — stay cautious with the sender."
-    else:
-        intent, emoji = 'Deceptive Photo', '❌'
-        reason = "This photo's digital footprint shows signs of manipulation — the sender may be trying to mislead you."
-
-    return {
-        "score": I, "intent": intent, "emoji": emoji, "reason": reason,
-        "A": A, "D": D, "B": B,
-        "upload_count": upload_count, "ip_variation": ip_variation,
-        "rapid_fire": rapid_fire, "timestamp": current_time.isoformat(),
-        "ip": user_ip, "filename": filename
-    }
-
-# ---------------------------
-# Routes
-# ---------------------------
-
+# === Homepage ===
 @app.route('/')
 def index():
-    return render_template("index.html")
+    upload_count = get_upload_count()
+    return render_template('index.html', upload_count=upload_count)
 
-@app.route('/upload', methods=['POST'])
-def upload():
-    file = request.files.get('file')
-    if not file or file.filename == '':
-        return redirect(url_for('index'))
-
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
-
-    user_ip = request.remote_addr
-    now = datetime.datetime.now()
-    result = analyze_image(filepath, user_ip, now)
-
-    logs = []
-    if os.path.exists(SCAN_LOG):
+# === Cleanup after scan or refresh ===
+@app.route('/cleanup', methods=['GET', 'POST'])
+def cleanup():
+    filename = session.pop('filename', None)
+    if filename:
         try:
-            with open(SCAN_LOG, 'r') as f:
-                logs = json.load(f)
-        except:
-            logs = []
+            os.remove(os.path.join(UPLOAD_FOLDER, filename))
+        except Exception:
+            pass
+    return redirect(url_for('index'))
 
-    logs.append(result)
-    with open(SCAN_LOG, 'w') as f:
-        json.dump(logs, f, indent=2)
+# === Upload + Signal Boost ===
+@app.route('/upload', methods=['POST', 'GET'])
+def upload():
+    filename = session.get('filename')
+    base_score = session.get('base_score')
+    boosted_score = session.get('boosted_score')
+    boost_delta = None
 
-    session["result"] = result
-    return redirect(url_for('result'))
+    # === New Upload ===
+    if request.method == 'POST':
+        file = request.files['image']
+        if not file:
+            return redirect(url_for('index'))
 
-@app.route('/result')
-def result():
-    result = session.get("result")
-    if not result:
-        return redirect(url_for('index'))
-    return render_template("result.html", result=result)
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
 
+        increment_upload_count()
+        session_id = generate_session_id()
+        base_score = round(random.uniform(55.0, 85.0), 2)
+
+        session['session_id'] = session_id
+        session['base_score'] = base_score
+        session['boosted_score'] = base_score
+        session['display_score'] = base_score
+        session['filename'] = filename
+        session['tap_boost_requested'] = False
+        session['tap_count'] = 1
+
+        log_signal_event(
+            filepath=SIGNAL_LOG_FILE,
+            filename=filename,
+            image_path=filepath,
+            request_meta={"ip": request.remote_addr, "user_agent": request.headers.get("User-Agent", "")},
+            session_meta={"session_id": session_id},
+            prior_filenames=PREVIOUS_UPLOADS
+        )
+
+        return redirect(url_for('upload'))
+
+    # === Refresh protection: redirect if no image
+    if request.method == 'GET' and not session.get('filename'):
+        return redirect(url_for('cleanup'))
+
+    # === Tap for more confidence
+    if 'boost' in request.args:
+        session['tap_boost_requested'] = True
+        return redirect(url_for('upload'))
+
+    # === Handle tap logic (always display upward, but log truth)
+    if session.get('tap_boost_requested') == True:
+        session['tap_boost_requested'] = False
+        true_score_before = session.get("boosted_score")
+        display_score = session.get("display_score", session.get("base_score", 0))
+
+        # Replace this line later with actual ProofModel call:
+        behavior_factor = random.uniform(1.01, 1.08)
+        true_score_after = round(min(true_score_before * behavior_factor, 99.9), 2)
+
+        # Only increase display score
+        display_score = max(display_score, true_score_after)
+
+        session['boosted_score'] = true_score_after
+        session['display_score'] = display_score
+        boost_delta = round(display_score - true_score_before, 2)
+
+        log_click_event(
+            filepath=CLICK_LOG_FILE,
+            filename=session.get("filename"),
+            score_before=true_score_before,
+            score_after=true_score_after,
+            request_meta={"ip": request.remote_addr, "user_agent": request.headers.get("User-Agent", "")},
+            session_meta=session
+        )
+
+    # === Final Result Display
+    score = session.get("display_score", base_score or 0)
+    result = "honest" if score >= 80 else "deceptive"
+    intent_label = "✅ Honest Photo" if result == "honest" else "❌ Deceptive Photo"
+
+    meta = {
+        "filename": filename,
+        "timestamp": datetime.utcnow().isoformat(),
+        "score": score,
+        "verdict": result
+    }
+
+    return render_template(
+        "result.html",
+        score=score,
+        intent_label=intent_label,
+        result=result,
+        meta=meta,
+        boost_delta=boost_delta
+    )
+
+# === Serve Image (used for testing before deletion) ===
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
-@app.route('/get_ip')
-def get_ip():
-    return jsonify({'ip': request.remote_addr})
+# === Upload Count API ===
+@app.route('/count')
+def count_route():
+    return f"Total uploads: {get_upload_count()}"
 
-@app.route('/download_batch', methods=['POST'])
-def download_batch():
-    files = request.json.get('files', [])
-    if not files:
-        return 'No files selected.', 400
-
-    zip_buffer = io.BytesIO()
-    metadata = []
-    scan_data = []
-
-    if os.path.exists(SCAN_LOG):
-        with open(SCAN_LOG, 'r') as f:
-            scan_data = json.load(f)
-
-    with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
-        for fname in files:
-            fpath = os.path.join(UPLOAD_FOLDER, fname)
-            if os.path.exists(fpath):
-                zip_file.write(fpath, arcname=fname)
-                matched = next((log for log in scan_data if log['filename'] == fname), None)
-                if matched:
-                    metadata.append(matched)
-        zip_file.writestr('proof_metadata.json', json.dumps(metadata, indent=2))
-
-    zip_buffer.seek(0)
-    return send_file(zip_buffer, mimetype='application/zip', as_attachment=True, download_name='proof_batch.zip')
-
-@app.route('/debug')
-def debug_data():
-    try:
-        with open(SCAN_LOG, "r") as f:
-            data = json.load(f)
-        return jsonify(data)
-    except:
-        return jsonify({"error": "Failed to load scan_results.json"})
-
-@app.route('/flag/<filename>/<flag_type>', methods=['POST'])
-def flag_file(filename, flag_type):
-    src = os.path.join(UPLOAD_FOLDER, filename)
-    if flag_type == "delete" and os.path.exists(src):
-        os.remove(src)
-        return redirect(url_for('index'))
-    return redirect(url_for('index'))
-
+# === Run App ===
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)

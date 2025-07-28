@@ -1,184 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PROOFME.AI v1.8</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      background: #111;
+      background-color: #111;
       color: white;
       font-family: system-ui, sans-serif;
       text-align: center;
-      padding: 2rem;
+      padding: 2rem 1rem;
       margin: 0;
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      color: #4ea8ff;
+    }
+
+    .description {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      color: white;
+      line-height: 1.6;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .count {
+      font-size: 1.2rem;
       margin-bottom: 2rem;
     }
 
-    .header-title {
-      font-weight: bold;
-      font-size: 18px;
-      margin-left: 0.5rem;
-    }
-
-    .dashboard-btn {
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-size: 14px;
-      cursor: pointer;
-      margin-right: 0.5rem;
-    }
-
-    .custom-file-upload {
-      background: #007bff;
-      color: white;
-      font-weight: bold;
-      padding: 14px 28px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
+    .red-dot {
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+      margin-right: 8px;
       display: inline-block;
-      margin-bottom: 1rem;
+      box-shadow: 0 0 10px rgba(255,0,0,0.6);
+      animation: heartbeat 1.5s infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.6); box-shadow: 0 0 20px rgba(255,0,0,1); }
+    }
+
+    .count-num {
+      font-weight: bold;
+      display: inline-block;
     }
 
     input[type="file"] {
       display: none;
     }
 
-    .upload-btn {
-      background: #007bff;
+    .upload-label {
+      background: linear-gradient(145deg, #1e90ff, #007bff);
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1rem;
       color: white;
-      padding: 14px 28px;
+      cursor: pointer;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 12px rgba(30, 144, 255, 0.6);
+      transition: all 0.2s ease;
+    }
+
+    .upload-label:hover {
+      background: linear-gradient(145deg, #3399ff, #006be6);
+      box-shadow: 0 0 18px rgba(0, 123, 255, 0.9);
+    }
+
+    #preview {
+      max-width: 200px;
+      border-radius: 8px;
+      margin: 1rem auto 0 auto;
+      display: none;
+    }
+
+    .action-buttons {
+      margin-top: 1rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .action-buttons button {
+      padding: 0.8rem 1.2rem;
       border: none;
       border-radius: 10px;
-      font-size: 16px;
+      font-weight: bold;
+      font-size: 1rem;
       cursor: pointer;
-      margin-top: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .submit-btn {
+      background: linear-gradient(145deg, #1e90ff, #007bff);
+      color: white;
+      box-shadow: 0 0 12px rgba(30, 144, 255, 0.6);
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(145deg, #3399ff, #006be6);
+      box-shadow: 0 0 18px rgba(0, 123, 255, 0.9);
     }
 
     .cancel-btn {
-      display: none;
-      background: #a10000;
+      background: linear-gradient(145deg, #ff5c5c, #ff3b30);
       color: white;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      margin-top: 1rem;
-      cursor: pointer;
+      box-shadow: 0 0 12px rgba(255, 59, 48, 0.6);
     }
 
-    .preview {
-      margin-top: 1.5rem;
+    .cancel-btn:hover {
+      background: linear-gradient(145deg, #ff7b7b, #e52d1a);
+      box-shadow: 0 0 18px rgba(255, 59, 48, 0.9);
     }
 
-    .preview img {
-      max-width: 90%;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(255,255,255,0.2);
-    }
-
-    .info-box {
-      background: #1a1a1a;
-      padding: 1.5rem;
-      margin-top: 2rem;
-      border-radius: 12px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .info-box h3 {
-      color: #33aaff;
-    }
-
-    #loading {
+    .scan-loader {
       display: none;
+      flex-direction: column;
+      align-items: center;
       margin-top: 2rem;
-      font-size: 16px;
-      color: #aaa;
     }
 
-    .loader {
-      border: 4px solid #333;
-      border-top: 4px solid #fff;
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top: 4px solid white;
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
       animation: spin 1s linear infinite;
-      margin: 0 auto;
-      margin-bottom: 8px;
+      margin-bottom: 1rem;
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
+      0% { transform: rotate(0); }
       100% { transform: rotate(360deg); }
+    }
+
+    .scan-text {
+      color: #aaa;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
     }
   </style>
 </head>
 <body>
+  <h1>Hi, I'm Proof.👋🏾</h1>
+  <p class="description">Upload any photo 📸 — I'll trace its digital footprint and tell you how confident I am if it's ✅ Honest or ❌ Deceptive.</p>
+  <p class="count">
+    <span class="red-dot"></span>
+    <span class="count-num" id="photoCount">0</span> — Results issued and counting!
+  </p>
 
-  <div class="header">
-    <div class="header-title">PROOFME.AI v1.8</div>
-    <a href="/log"><button class="dashboard-btn">Dashboard</button></a>
-  </div>
-
-  <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
-    <label for="fileInput" id="uploadLabel" class="custom-file-upload">Upload Photo Here         </label>
-    <input id="fileInput" type="file" name="file" accept=".jpg, .jpeg, .png, .heic" required onchange="revealUI(event)">
-
-    <div id="previewContainer" class="preview" style="display:none;">
-      <img id="previewImage" src="#" alt="Uploaded image">
-    </div>
-
-    <div id="submitOptions" style="display:none;">
-      <button class="upload-btn" type="submit">Submit Photo</button><br>
-      <button type="button" class="cancel-btn" onclick="window.location.href='/'" id="cancelBtn">❌ Cancel Upload</button>
-    </div>
-
-    <div id="loading">
-      <div class="loader"></div>
-      Scanning image...
+  <label for="file-upload" class="upload-label" id="upload-label">Upload Photo Here</label>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input id="file-upload" name="image" type="file" accept="image/*" required onchange="previewImage(event)" />
+    <img id="preview" src="#" alt="Photo Preview" />
+    <div class="action-buttons" id="action-buttons">
+      <button type="submit" class="submit-btn">Submit Photo</button>
+      <button type="button" class="cancel-btn" onclick="resetUpload()">Cancel Upload</button>
     </div>
   </form>
 
-  <div class="info-box">
-    <h3>Hi, I’m Proof 👋</h3>
-    <p>Upload any photo — I’ll scan it and give you a clue if it's a:</p>
-    <p>✅ <strong>Honest Photo</strong> — sent from real friends, family, or good strangers.</p>
-    <p>❌ <strong>Deceptive Photo</strong> — sent from scammers, imposters, or bad actors.</p>
+  <div class="scan-loader" id="scanLoader">
+    <div class="spinner"></div>
+    <div class="scan-text">Scanning image...</div>
   </div>
 
   <script>
-    function revealUI(event) {
-      document.getElementById('uploadLabel').style.display = 'none';
-      document.getElementById('submitOptions').style.display = 'block';
-      document.getElementById('cancelBtn').style.display = 'inline-block';
-
-      const reader = new FileReader();
-      reader.onload = function () {
-        const output = document.getElementById('previewImage');
-        output.src = reader.result;
-        document.getElementById('previewContainer').style.display = 'block';
-      };
-      reader.readAsDataURL(event.target.files[0]);
+    function previewImage(event) {
+      const preview = document.getElementById("preview");
+      const actions = document.getElementById("action-buttons");
+      const uploadLabel = document.getElementById("upload-label");
+      const file = event.target.files[0];
+      if (file) {
+        uploadLabel.style.display = "none";
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = "block";
+          actions.style.display = "flex";
+        };
+        reader.readAsDataURL(file);
+      }
     }
 
-    function showLoading() {
-      document.getElementById('submitOptions').style.display = 'none';
-      document.getElementById('loading').style.display = 'block';
+    function resetUpload() {
+      const upload = document.getElementById("file-upload");
+      const preview = document.getElementById("preview");
+      const actions = document.getElementById("action-buttons");
+      const scanLoader = document.getElementById("scanLoader");
+      const uploadLabel = document.getElementById("upload-label");
+
+      upload.value = "";
+      preview.src = "#";
+      preview.style.display = "none";
+      actions.style.display = "none";
+      scanLoader.style.display = "none";
+      uploadLabel.style.display = "inline-block";
     }
+
+    async function fetchRealCount() {
+      try {
+        const res = await fetch("/count");
+        const text = await res.text();
+        const count = text.match(/\d+/); // extract number
+        document.getElementById("photoCount").textContent = parseInt(count[0]).toLocaleString();
+      } catch {
+        document.getElementById("photoCount").textContent = "0";
+      }
+    }
+
+    window.onload = () => {
+      fetchRealCount();
+      setInterval(fetchRealCount, 5000);
+    };
   </script>
-
 </body>
 </html>

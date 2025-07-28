@@ -118,5 +118,58 @@
     "timestamp": "2025-07-24T17:32:15.965501",
     "ip": "127.0.0.1",
     "filename": "IMG_8440.jpeg"
+  },
+  {
+    "score": 100,
+    "intent": "Honest Photo",
+    "emoji": "\u2705",
+    "reason": "This photo's digital footprint appears genuine \u2014 the sender shows no signs of deception.",
+    "A": 81.46,
+    "D": 0.54,
+    "B": 0.0,
+    "upload_count": 1,
+    "ip_variation": false,
+    "rapid_fire": false,
+    "timestamp": "2025-07-26T01:41:31.897445",
+    "ip": "127.0.0.1",
+    "filename": "IMG_4929.jpeg"
+  },
+  {
+    "filename": "IMG_7525.jpeg",
+    "score": 100,
+    "intent": "Honest Photo",
+    "emoji": "\u2705",
+    "timestamp": "2025-07-26T02:10:15.215843",
+    "ip": "127.0.0.1"
+  },
+  {
+    "filename": "IMG_9681.jpeg",
+    "score": 57,
+    "intent": "Deceptive Photo",
+    "emoji": "\u274c",
+    "timestamp": "2025-07-26T12:09:35.369474",
+    "ip": "127.0.0.1",
+    "A": 73.17,
+    "D": 22.8,
+    "B": 0.38,
+    "upload_count": 1,
+    "ip_variation": false,
+    "rapid_fire": false,
+    "reason": "This photo appears genuine \u2014 the sender shows no signs of deception."
+  },
+  {
+    "filename": "IMG_7525.jpeg",
+    "score": 76,
+    "intent": "Honest but Deceptive Photo",
+    "emoji": "\u26a0\ufe0f",
+    "timestamp": "2025-07-26T12:29:40.514496",
+    "ip": "127.0.0.1",
+    "A": 81.38,
+    "D": 16.14,
+    "B": 1.38,
+    "upload_count": 1,
+    "ip_variation": false,
+    "rapid_fire": false,
+    "reason": "This photo may raise questions \u2014 proceed with caution."
   }
 ]
