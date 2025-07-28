@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, session
-import os, random
+import os, random, base64
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from logger import log_signal_event, log_click_event, PREVIOUS_UPLOADS
+
+from model_loader import proof_model, predict_confidence_score
 
 app = Flask(__name__)
 app.secret_key = "proof_secret_key"
@@ -14,7 +16,10 @@ COUNTER_FILE = 'upload_count.txt'
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# === Upload Counter ===
+def encode_image_base64(path):
+    with open(path, 'rb') as f:
+        return base64.b64encode(f.read()).decode('utf-8')
+
 def increment_upload_count():
     if not os.path.exists(COUNTER_FILE):
         with open(COUNTER_FILE, 'w') as f:
@@ -37,13 +42,11 @@ def generate_session_id():
     raw = f"{request.remote_addr}_{datetime.utcnow().isoformat()}"
     return os.urandom(4).hex()
 
-# === Homepage ===
 @app.route('/')
 def index():
     upload_count = get_upload_count()
     return render_template('index.html', upload_count=upload_count)
 
-# === Cleanup after scan or refresh ===
 @app.route('/cleanup', methods=['GET', 'POST'])
 def cleanup():
     filename = session.pop('filename', None)
@@ -54,7 +57,6 @@ def cleanup():
             pass
     return redirect(url_for('index'))
 
-# === Upload + Signal Boost ===
 @app.route('/upload', methods=['POST', 'GET'])
 def upload():
     filename = session.get('filename')
@@ -62,7 +64,6 @@ def upload():
     boosted_score = session.get('boosted_score')
     boost_delta = None
 
-    # === New Upload ===
     if request.method == 'POST':
         file = request.files['image']
         if not file:
@@ -74,7 +75,7 @@ def upload():
 
         increment_upload_count()
         session_id = generate_session_id()
-        base_score = round(random.uniform(55.0, 85.0), 2)
+        base_score = predict_confidence_score(filepath, proof_model)
 
         session['session_id'] = session_id
         session['base_score'] = base_score
@@ -95,28 +96,22 @@ def upload():
 
         return redirect(url_for('upload'))
 
-    # === Refresh protection: redirect if no image
     if request.method == 'GET' and not session.get('filename'):
         return redirect(url_for('cleanup'))
 
-    # === Tap for more confidence
     if 'boost' in request.args:
         session['tap_boost_requested'] = True
         return redirect(url_for('upload'))
 
-    # === Handle tap logic (always display upward, but log truth)
     if session.get('tap_boost_requested') == True:
         session['tap_boost_requested'] = False
         true_score_before = session.get("boosted_score")
         display_score = session.get("display_score", session.get("base_score", 0))
 
-        # Replace this line later with actual ProofModel call:
-        behavior_factor = random.uniform(1.01, 1.08)
-        true_score_after = round(min(true_score_before * behavior_factor, 99.9), 2)
+        filepath = os.path.join(UPLOAD_FOLDER, session.get("filename"))
+        true_score_after = predict_confidence_score(filepath, proof_model)
 
-        # Only increase display score
         display_score = max(display_score, true_score_after)
-
         session['boosted_score'] = true_score_after
         session['display_score'] = display_score
         boost_delta = round(display_score - true_score_before, 2)
@@ -130,10 +125,18 @@ def upload():
             session_meta=session
         )
 
-    # === Final Result Display
     score = session.get("display_score", base_score or 0)
     result = "honest" if score >= 80 else "deceptive"
     intent_label = "✅ Honest Photo" if result == "honest" else "❌ Deceptive Photo"
+
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    base64_image = encode_image_base64(filepath)
+
+    try:
+        os.remove(filepath)
+        session['filename'] = None
+    except Exception:
+        pass
 
     meta = {
         "filename": filename,
@@ -148,19 +151,19 @@ def upload():
         intent_label=intent_label,
         result=result,
         meta=meta,
-        boost_delta=boost_delta
+        boost_delta=boost_delta,
+        base64_image=base64_image
     )
 
-# === Serve Image (used for testing before deletion) ===
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
-# === Upload Count API ===
 @app.route('/count')
 def count_route():
     return f"Total uploads: {get_upload_count()}"
 
-# === Run App ===
+# === FINAL FLASK BIND FOR RENDER ===
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
