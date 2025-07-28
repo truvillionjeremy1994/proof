@@ -1,14 +1,14 @@
 import torch.nn as nn
-import torchvision.models as models
 
-class ProofModel(nn.Module):
+class ProofModelV2(nn.Module):
     def __init__(self):
-        super(ProofModel, self).__init__()
-        self.base = models.resnet18(pretrained=True)
-        self.base.fc = nn.Sequential(
-            nn.Linear(self.base.fc.in_features, 1),
+        super().__init__()
+        self.model = nn.Sequential(
+            nn.Linear(5, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1),
             nn.Sigmoid()
         )
 
     def forward(self, x):
-        return self.base(x)
+        return self.model(x)
